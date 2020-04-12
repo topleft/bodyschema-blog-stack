@@ -16,6 +16,9 @@
     "GithubRepoUrl": {
       "Type": "String"
     },
+    "GithubToken": {
+      "Type": "String"
+    },
     "HandlerCodeS3Key": {
       "Type": "String",
       "Default": "function.zip"
@@ -179,7 +182,40 @@
         }
       }
     },
+    "BuildSecrets": {
+      "Type": "AWS::SecretsManager::Secret",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "${ProjectName}-build-secrets-${env}"
+        },
+        "SecretString": {
+          "Fn::Join": [
+            "",
+            [
+              "{",
+              "\"GithubToken\": ",
+              {"Fn::Sub": "\"${GithubToken}\","},
+              "\"AwsSecretAccessKey\": \"",
+              {"Fn::ImportValue": {
+                  "Fn::Sub": "${RolesStack}-ContentUserSecretKey"
+                }
+              },
+              "\"}"
+            ]
+          ]
+        }
+      }
+    },
+    "SourceCredential": {
+      "Type" : "AWS::CodeBuild::SourceCredential",
+      "Properties" : {
+          "AuthType" : "PERSONAL_ACCESS_TOKEN",
+          "ServerType" : "GITHUB",
+          "Token" : {"Ref": "GithubToken"}
+        }
+    },
     "GatsbySiteCodeBuild": {
+      "DependsOn": "BuildSecrets",
       "Type": "AWS::CodeBuild::Project",
       "Properties": {
         "Name": {
@@ -225,18 +261,36 @@
             {
               "Name": "AWS_SECRET_ACCESS_KEY",
               "Value": {
-                "Fn::ImportValue": {
-                  "Fn::Sub": "${RolesStack}-ContentUserSecretKey"
-                }
-              }
+                "Fn::Sub": "${ProjectName}-build-secrets-${env}:AwsSecretAccessKey"
+              },
+              "Type": "SECRETS_MANAGER"
             }
           ]
         },
         "Source": {
+          "Auth": {
+            "Type": "OAUTH",
+            "Resource": {"Ref": "SourceCredential"}
+          },
           "Location": {
             "Ref": "GithubRepoUrl"
           },
           "Type": "GITHUB"
+        },
+        "Triggers": {
+          "Webhook": true,
+          "FilterGroups": [
+            [
+              {
+                "Type": "EVENT",
+                "Pattern": "PULL_REQUEST_MERGED"
+              },
+              {
+                "Type": "BASE_REF",
+                "Pattern": "refs/heads/master"
+              }
+            ]
+          ]
         },
         "TimeoutInMinutes": 10
       }

@@ -48,6 +48,7 @@ create-build:
   ParameterKey=RolesStack,ParameterValue=${PROJECT_NAME}-roles-${ENV} \
   ParameterKey=ProjectName,ParameterValue=${PROJECT_NAME} \
   ParameterKey=GithubRepoUrl,ParameterValue=${GITHUB_REPO_URL} \
+  ParameterKey=GithubToken,ParameterValue=${GITHUB_TOKEN} \
   --profile personal
 
 
@@ -95,6 +96,7 @@ update-build:
   ParameterKey=ServiceStack,ParameterValue=${PROJECT_NAME}-service-${ENV} \
   ParameterKey=ProjectName,ParameterValue=${PROJECT_NAME} \
   ParameterKey=GithubRepoUrl,ParameterValue=${GITHUB_REPO_URL} \
+	ParameterKey=GithubToken,ParameterValue=${GITHUB_TOKEN} \
   --profile personal
 
 function-package:
