@@ -281,74 +281,6 @@
         }
       }
     },
-    "ContentRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "RoleName": {
-          "Fn::Sub": "${ProjectName}-content-role-${env}"
-        },
-        "AssumeRolePolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [{
-            "Effect": "Allow",
-            "Principal": {
-              "Service": ["ec2.amazonaws.com"]
-            },
-            "Action": ["sts:AssumeRole"]
-          }]
-        },
-        "Path": "/",
-        "Policies": [{
-          "PolicyName": "S3ReadWrite",
-          "PolicyDocument": {
-            "Version": "2012-10-17",
-            "Statement": [
-              {
-              "Effect": "Allow",
-              "Action": [
-                "s3:PutObject",
-                "s3:GetObject",
-                "s3:PutObjectVersionAcl",
-                "s3:DeleteObject",
-                "s3:PutObjectAcl"
-              ],
-              "Resource": [{
-                  "Fn::Join": [
-                    "",
-                    [{
-                        "Fn::ImportValue": {
-                          "Fn::Sub": "${BucketsStack}-ContentS3BucketArn"
-                        }
-                      }
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [{
-                        "Fn::ImportValue": {
-                          "Fn::Sub": "${BucketsStack}-ContentS3BucketArn"
-                        }
-                      },
-                      "/*"
-                    ]
-                  ]
-                }
-              ]
-            }]
-          }
-        }]
-      }
-    },
-    "BlogServiceInstanceProfile": {
-      "Type": "AWS::IAM::InstanceProfile",
-      "Properties": {
-        "Roles": [{
-          "Ref": "ContentRole"
-        }]
-      }
-    },
     "ApiGatewayRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -448,17 +380,6 @@
       "Export": {
         "Name": {
           "Fn::Sub": "${AWS::StackName}-ContentUserSecretKey"
-        }
-      }
-    },
-    "BlogServiceInstanceProfile": {
-      "Description": "Profile including the ContentRole",
-      "Value": {
-        "Ref": "BlogServiceInstanceProfile"
-      },
-      "Export": {
-        "Name": {
-          "Fn::Sub": "${AWS::StackName}-BlogServiceInstanceProfile"
         }
       }
     }

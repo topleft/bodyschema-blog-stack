@@ -64,11 +64,6 @@
         "KeyName": {
           "Ref": "KeyName"
         },
-        "IamInstanceProfile": {
-          "Fn::ImportValue": {
-            "Fn::Sub": "${RolesStack}-BlogServiceInstanceProfile"
-          }
-        },
         "Monitoring": true,
         "SecurityGroupIds": [{
           "Ref": "WebServerSecurityGroup"
