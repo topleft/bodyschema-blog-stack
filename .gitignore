@@ -1,0 +1,4 @@
+.env
+build-fn/node_modules/
+build-fn/function.zip
+function.zip
